@@ -1,0 +1,126 @@
+
+Project Overview:
+
+I am working on a project called AVA 1.1, an interactive financial advisory app that provides equity investment advice using Large Language Models (LLMs). The app leverages an agent-based architecture within a Retrieval-Augmented Generation (RAG) pipeline, structured using advanced design patterns to ensure scalability and modularity. The goal is to have a system where:
+
+- New agents can be easily added to the pipeline.
+- Agent mandates are easy to manage and edit.
+- The linear flow of the pipeline can be managed and edited effortlessly.
+- The functionality of the code remains unchanged while enhancing scalability.
+
+Design Patterns Used:
+
+- Factory Method Pattern: For dynamic creation of agents.
+- Strategy Pattern: To encapsulate mandates and behaviors within agents.
+- Singleton Pattern: For managing configuration settings.
+- Chain of Responsibility: To control the flow between agents.
+
+Project Structure:
+
+```
+project/
+├── main.py
+├── agents/
+│   ├── __init__.py
+│   ├── agent_base.py
+│   ├── agent_zero.py
+│   ├── agent_one.py
+│   ├── agent_two.py
+│   └── ... (additional agents)
+├── prompts/
+│   ├── __init__.py
+│   ├── agent_zero_mandate.txt
+│   ├── agent_one_mandate.txt
+│   ├── agent_two_mandate.txt
+│   └── ... (additional mandates)
+├── utils/
+│   ├── __init__.py
+│   ├── conversation_utils.py
+│   ├── research_utils.py
+│   ├── risk_profile_utils.py
+│   └── ... (additional utilities)
+├── configs/
+│   ├── __init__.py
+│   └── config.py
+├── data/
+│   └── companies.csv
+└── requirements.txt
+```
+
+Key Components:
+
+- **Agents (agents/):**
+  - Each agent is a subclass of AgentBase (agent_base.py).
+  - Agents have specific roles and can be added or modified easily.
+  - **Agent Zero (agent_zero.py):** Interacts with the user, gathers information, and provides investment advice.
+  - **Agent One (agent_one.py):** Evaluates user inputs and routes them appropriately.
+  - **Agent Two (agent_two.py):** Generates risk profile reports based on conversation history.
+
+- **Mandates (prompts/):**
+  - Agent mandates are stored as plain text files for easy editing.
+  - Examples include agent_zero_mandate.txt, agent_one_mandate.txt, and agent_two_mandate.txt.
+
+- **Utilities (utils/):**
+  - Contains helper modules for conversation management (conversation_utils.py), research processing (research_utils.py), and risk profiling (risk_profile_utils.py).
+
+- **Configuration (configs/):**
+  - Configuration settings are managed using the Singleton pattern in config.py.
+
+- **Data (data/):**
+  - Contains companies.csv, a CSV file with company data and Piotroski F-scores.
+
+Technologies Used:
+
+- Python 3.7+
+- Streamlit: For the user interface.
+- Pandas: For data manipulation.
+- YFinance: For retrieving financial data.
+- LLMWare Library: For LLM interactions.
+- OpenAI API: For language model capabilities.
+
+Specific Requirements and Goals:
+
+- **Modularity:** The code should be modular to allow for easy maintenance and scalability.
+- **Agent Addition:** Adding new agents should be straightforward, involving minimal changes to the existing codebase.
+- **Mandate Management:** Agent mandates should be easy to edit and manage, stored separately from the code.
+- **Pipeline Flow Control:** The sequence of agent interactions should be easily adjustable.
+- **Functionality Preservation:** The original functionality must remain unchanged during refactoring.
+- **Scalability:** The design should accommodate future expansion without significant restructuring.
+
+What I Need Help With:
+
+I need assistance with building or modifying the code within this new project structure. Specifically:
+
+- **Adding New Agents:**
+  - How to create new agent classes that subclass AgentBase.
+  - Integrating new agents into the existing pipeline flow.
+  - Defining new mandates and storing them appropriately.
+
+- **Modifying Agent Mandates:**
+  - Best practices for updating mandates in the prompts/ directory.
+  - Ensuring that changes in mandates reflect correctly in agent behaviors.
+
+- **Adjusting the Pipeline Flow:**
+  - How to modify the sequence of agent interactions.
+  - Implementing changes using the Chain of Responsibility pattern.
+
+- **Optimizing Code:**
+  - Suggestions for improving code efficiency and readability.
+  - Ensuring adherence to best practices in Python and software design patterns.
+
+- **Debugging and Testing:**
+  - Strategies for testing individual agents and the overall system.
+  - Debugging any issues that arise during development.
+
+Additional Context:
+
+- The application is currently functional, and I want to maintain all existing features.
+- The main interaction with the user occurs through main.py using Streamlit.
+- Agents communicate and share data via session state (st.session_state).
+- Configuration settings are crucial and managed globally.
+
+Instructions for Assistance:
+
+- Please provide code examples, explanations, or recommendations that align with the project structure and design patterns mentioned.
+- Ensure that any suggested changes maintain the modularity and scalability of the system.
+- Help me understand how to implement the desired features effectively.
