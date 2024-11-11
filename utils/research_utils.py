@@ -97,7 +97,7 @@ class ResearchManager:
 
         return research_summary
 
-    def summarize_report(self, research_summary):
+    def summarize_report(self, research_summary, agent_zero_model, agent_zero_api_key):
         # Convert research_summary to text
         report_text = ""
         for company, details in research_summary.items():
@@ -108,7 +108,7 @@ class ResearchManager:
 
         # Load the model for summarization
         from llmware.prompts import Prompt
-        prompter = Prompt().load_model(st.session_state['agent_zero_model'], api_key=st.session_state['api_key'])
+        prompter = Prompt().load_model(agent_zero_model, api_key=agent_zero_api_key)
 
         # Summarize the report
         with st.spinner('Summarizing the report...'):

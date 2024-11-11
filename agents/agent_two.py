@@ -54,3 +54,4 @@ class AgentTwo(AgentBase):
         response = self.prompter.prompt_main(risk_profile_input)
         risk_profile_report = response['llm_response'].strip()
         return risk_profile_report
+

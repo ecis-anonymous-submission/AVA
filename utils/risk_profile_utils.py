@@ -22,10 +22,11 @@ Methods:
 '''
 
 import streamlit as st
-from agents.agent_two import AgentTwo
+# Remove unnecessary import
+# from agents.agent_two import AgentTwo
 
 class RiskProfileManager:
-    def generate_risk_profile(self, conversation_history):
-        agent_two = AgentTwo(st.session_state['agent_two_model'], st.session_state['api_key'])
+    def generate_risk_profile(self, conversation_history, agent_two):
         risk_profile_report = agent_two.generate_risk_profile(conversation_history)
         return risk_profile_report
+

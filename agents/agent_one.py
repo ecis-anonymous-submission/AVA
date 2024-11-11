@@ -4,7 +4,7 @@
 Technical Overview:
 AgentOne operates as an evaluation agent within the advisory app's agentic pipeline. This agent’s role 
 is to assess user input and classify it based on predefined rules (mandates) stored in an external text file. 
-AgentOne retrieves its mandate, which defines specific evaluation criteria, and uses it to contextualize 
+This agent triggers pipeline events. AgentOne retrieves its mandate, which defines specific evaluation criteria, and uses it to contextualize 
 the user’s input. By constructing a prompt with the mandate and user input, AgentOne generates a 
 structured response via the LLM. This response is designed to streamline decision-making in the 
 pipeline by categorizing inputs, enabling other agents to perform targeted tasks based on these 
@@ -40,3 +40,4 @@ class AgentOne(AgentBase):
         response = self.prompter.prompt_main(evaluation_input)
         llm_response = response['llm_response'].strip()
         return llm_response
+

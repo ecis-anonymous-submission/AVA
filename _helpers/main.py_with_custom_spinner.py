@@ -12,6 +12,7 @@ This is the main entry point of the AVA application. It sets up the Streamlit ap
 
 - Enhanced model selection to include both GPT and Claude models.
 - Improved UI to request the appropriate API keys based on the selected models.
+- Integrated a custom spinner animation for a better user experience.
 """
 
 import os
@@ -24,6 +25,104 @@ from agents.agent_two import AgentTwo
 from utils.conversation_utils import ConversationManager
 from utils.research_utils import ResearchManager
 from utils.risk_profile_utils import RiskProfileManager
+
+# Embed the custom CSS for the spinner
+spinner_css = """
+<style>
+.spinner {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+
+.spinner span {
+  position: absolute;
+  top: 50%;
+  left: var(--left);
+  width: 35px;
+  height: 7px;
+  background: #000;
+  animation: dominos 1s ease infinite;
+  box-shadow: 2px 2px 3px 0px black;
+}
+
+.spinner span:nth-child(1) {
+  --left: 80px;
+  animation-delay: 0.125s;
+}
+
+.spinner span:nth-child(2) {
+  --left: 70px;
+  animation-delay: 0.3s;
+}
+
+.spinner span:nth-child(3) {
+  --left: 60px;
+  animation-delay: 0.425s;
+}
+
+.spinner span:nth-child(4) {
+  --left: 50px;
+  animation-delay: 0.54s;
+}
+
+.spinner span:nth-child(5) {
+  --left: 40px;
+  animation-delay: 0.665s;
+}
+
+.spinner span:nth-child(6) {
+  --left: 30px;
+  animation-delay: 0.79s;
+}
+
+.spinner span:nth-child(7) {
+  --left: 20px;
+  animation-delay: 0.915s;
+}
+
+.spinner span:nth-child(8) {
+  --left: 10px;
+}
+
+@keyframes dominos {
+  50% {
+    opacity: 0.7;
+  }
+
+  75% {
+    transform: rotate(90deg);
+  }
+
+  80% {
+    opacity: 1;
+  }
+}
+</style>
+"""
+
+# Inject CSS into the app
+st.markdown(spinner_css, unsafe_allow_html=True)
+
+# Function to display the spinner
+def show_spinner():
+    spinner_html = """
+    <div class="spinner">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    """
+    return spinner_html
 
 # Set up the Streamlit app
 st.title("AVA 1.0 - An Agentic RAG Artifact for LLM Investment Advice")
@@ -151,7 +250,6 @@ if user_input:
     st.session_state['conversation_history'].append({"role": "user", "content": user_input})
 
     # Process the user input
-    # Process the user input
     def process_user_input(user_input):
         # Agent One evaluates the user input
         evaluation_response = agent_one.evaluate_input(user_input)
@@ -163,21 +261,31 @@ if user_input:
         # Check evaluation response
         if "'Y'" in evaluation_response:
             # The user is requesting investment advice
-            with st.spinner('Generating detailed report...'):
+            spinner_placeholder = st.empty()
+            with spinner_placeholder.container():
+                st.markdown(show_spinner(), unsafe_allow_html=True)
                 research_summary = research_manager.generate_research_summary()
                 st.write(research_summary)
                 report_summary_text = research_manager.summarize_report(
-                research_summary,
-                agent_zero_model,
-                agent_zero_api_key
+                    research_summary,
+                    agent_zero_model,
+                    agent_zero_api_key
                 )
+            spinner_placeholder.empty()
             assistant_response = conversation_manager.conversation(user_input, agent_zero, report_summary=report_summary_text)
             return assistant_response
         elif "'R'" in evaluation_response:
             # The user is answering a risk profile question
-            risk_profile_report = risk_profile_manager.generate_risk_profile(st.session_state['conversation_history'], agent_two)
-            st.session_state['risk_profile_report'] = risk_profile_report
-            st.write(f"**Risk Profile Report from Agent Two:**\n{risk_profile_report}")
+            spinner_placeholder = st.empty()
+            with spinner_placeholder.container():
+                st.markdown(show_spinner(), unsafe_allow_html=True)
+                risk_profile_report = risk_profile_manager.generate_risk_profile(
+                    st.session_state['conversation_history'],
+                    agent_two
+                )
+                st.session_state['risk_profile_report'] = risk_profile_report
+                st.write(f"**Risk Profile Report from Agent Two:**\n{risk_profile_report}")
+            spinner_placeholder.empty()
             st.session_state['conversation_history'].append({"role": "agent_two", "content": risk_profile_report})
             assistant_response = conversation_manager.conversation(user_input, agent_zero)
             return assistant_response
