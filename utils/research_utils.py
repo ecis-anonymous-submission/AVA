@@ -58,7 +58,12 @@ class ResearchManager:
         # Filter companies with f_score > 8
         filtered_companies = [row for row in companies if float(row.get('f_score', 0)) > 8]
 
+        # If no companies with f_score > 8, fallback to f_score > 7
+        if not filtered_companies:
+            filtered_companies = [row for row in companies if float(row.get('f_score', 0)) > 7]
+
         research_summary = {}
+
 
         for row in filtered_companies:
             company_name = row['name']
@@ -88,11 +93,11 @@ class ResearchManager:
                 "sector": yf3.get("sector", "N/A"),
                 "website": yf3.get("website", "N/A"),
                 "industry": yf3.get("industry", "N/A"),
-                "employees": yf3.get("fullTimeEmployees", "N/A"),
-                "officers": [
-                    (officer.get("name", "N/A"), officer.get("title", "N/A"), officer.get("age", "N/A"), officer.get("totalPay", "N/A"))
-                    for officer in yf3.get("companyOfficers", [])
-                ]
+                # "employees": yf3.get("fullTimeEmployees", "N/A"),
+                # "officers": [
+                #     (officer.get("name", "N/A"), officer.get("title", "N/A"), officer.get("age", "N/A"), officer.get("totalPay", "N/A"))
+                #     for officer in yf3.get("companyOfficers", [])
+                # ]
             })
 
         return research_summary

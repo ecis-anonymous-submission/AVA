@@ -3,3 +3,4 @@ pandas
 llmware
 yfinance
 openai
+anthropic

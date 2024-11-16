@@ -13,10 +13,20 @@ This is the main entry point of the AVA application. It sets up the Streamlit ap
 - Enhanced model selection to include both GPT and Claude models.
 - Improved UI to request the appropriate API keys based on the selected models.
 """
+# main.py
 
 import os
 import streamlit as st
 
+# Import UI modules
+from ui.header import display_header
+from ui.how_it_works import display_how_it_works
+from ui.model_selection import model_selection
+from ui.api_keys import prompt_for_api_keys
+from ui.conversation import initialize_conversation, display_conversation, get_user_input
+from ui.session_state import initialize_session_state
+
+# Import other necessary modules
 from configs.config import Config
 from agents.agent_zero import AgentZero
 from agents.agent_one import AgentOne
@@ -25,8 +35,14 @@ from utils.conversation_utils import ConversationManager
 from utils.research_utils import ResearchManager
 from utils.risk_profile_utils import RiskProfileManager
 
-# Set up the Streamlit app
-st.title("AVA 1.0 - An Agentic RAG Artifact for LLM Investment Advice")
+# Initialize session state
+initialize_session_state()
+
+# Display header and logo
+display_header()
+
+# Display "How It Works" section
+display_how_it_works()
 
 # Model options for GPT and Claude
 gpt_models = [
@@ -40,31 +56,10 @@ claude_models = [
     'claude-3-sonnet-20240229'
 ]
 
-all_models = gpt_models + claude_models
+# Model selection
+selected_models = model_selection(gpt_models, claude_models)
 
-# Initialize session state for API keys
-if 'api_keys' not in st.session_state:
-    st.session_state['api_keys'] = {}
-
-# Dropdown for Agent Zero model selection
-agent_zero_model = st.selectbox("Choose the model for conversation agent (Agent Zero):", all_models)
-st.session_state['agent_zero_model'] = agent_zero_model
-
-# Dropdown for Agent One model selection
-agent_one_model = st.selectbox("Choose the model for the evaluation agent (Agent One):", all_models)
-st.session_state['agent_one_model'] = agent_one_model
-
-# Dropdown for Agent Two model selection
-agent_two_model = st.selectbox("Choose the model for risk profiling agent (Agent Two):", all_models)
-st.session_state['agent_two_model'] = agent_two_model
-
-# Determine which API keys are needed based on selected models
-selected_models = {
-    'agent_zero': agent_zero_model,
-    'agent_one': agent_one_model,
-    'agent_two': agent_two_model
-}
-
+# Determine required API keys
 required_api_keys = set()
 for model in selected_models.values():
     if model in gpt_models:
@@ -72,26 +67,10 @@ for model in selected_models.values():
     if model in claude_models:
         required_api_keys.add('anthropic')
 
-# Prompt for API keys based on required models
-if 'openai' in required_api_keys:
-    openai_api_key = st.text_input("Enter your OpenAI API key", type='password')
-    if openai_api_key:
-        st.session_state['api_keys']['openai'] = openai_api_key
-        os.environ["USER_MANAGED_OPENAI_API_KEY"] = openai_api_key  # Set the environment variable
+# Prompt for API keys
+prompt_for_api_keys(required_api_keys)
 
-if 'anthropic' in required_api_keys:
-    anthropic_api_key = st.text_input("Enter your Anthropic API key", type='password')
-    if anthropic_api_key:
-        st.session_state['api_keys']['anthropic'] = anthropic_api_key
-        os.environ["USER_MANAGED_ANTHROPIC_API_KEY"] = anthropic_api_key  # Set the environment variable
-
-# Check if the necessary API keys are set
-missing_keys = [key for key in required_api_keys if key not in st.session_state['api_keys']]
-if missing_keys:
-    st.warning(f"Please enter your {', '.join(missing_keys)} API key(s) to continue.")
-    st.stop()
-
-# Configuration
+# Configuration setup
 config = Config()
 config.setup()
 
@@ -104,44 +83,28 @@ def get_api_key_for_model(model_name):
     else:
         return None
 
-agent_zero_api_key = get_api_key_for_model(agent_zero_model)
-agent_zero = AgentZero(agent_zero_model, agent_zero_api_key)
+agent_zero_api_key = get_api_key_for_model(selected_models['agent_zero'])
+agent_zero = AgentZero(selected_models['agent_zero'], agent_zero_api_key)
 
-agent_one_api_key = get_api_key_for_model(agent_one_model)
-agent_one = AgentOne(agent_one_model, agent_one_api_key)
+agent_one_api_key = get_api_key_for_model(selected_models['agent_one'])
+agent_one = AgentOne(selected_models['agent_one'], agent_one_api_key)
 
-agent_two_api_key = get_api_key_for_model(agent_two_model)
-agent_two = AgentTwo(agent_two_model, agent_two_api_key)
+agent_two_api_key = get_api_key_for_model(selected_models['agent_two'])
+agent_two = AgentTwo(selected_models['agent_two'], agent_two_api_key)
 
 # Initialize managers
 conversation_manager = ConversationManager()
 research_manager = ResearchManager()
 risk_profile_manager = RiskProfileManager()
 
-# Initialize conversation history
-if 'messages' not in st.session_state:
-    st.session_state['messages'] = []
-    st.session_state['messages'].append({"role": "assistant", "content": "Hi, how can I help you today?"})
-
-# Initialize conversation history for Agent Two
-if 'conversation_history' not in st.session_state:
-    st.session_state['conversation_history'] = []
-
-# Initialize risk profile report
-if 'risk_profile_report' not in st.session_state:
-    st.session_state['risk_profile_report'] = None
+# Initialize conversation
+initialize_conversation()
 
 # Display conversation history
-for message in st.session_state['messages']:
-    if message['role'] == 'user':
-        with st.chat_message("user"):
-            st.markdown(message['content'])
-    else:
-        with st.chat_message("assistant"):
-            st.markdown(message['content'])
+display_conversation()
 
-# Input text box for the user
-user_input = st.chat_input("Type your message...")
+# Get user input
+user_input = get_user_input()
 
 if user_input:
     # Add user message to conversation history
@@ -150,7 +113,6 @@ if user_input:
         st.markdown(user_input)
     st.session_state['conversation_history'].append({"role": "user", "content": user_input})
 
-    # Process the user input
     # Process the user input
     def process_user_input(user_input):
         # Agent One evaluates the user input
@@ -167,9 +129,9 @@ if user_input:
                 research_summary = research_manager.generate_research_summary()
                 st.write(research_summary)
                 report_summary_text = research_manager.summarize_report(
-                research_summary,
-                agent_zero_model,
-                agent_zero_api_key
+                    research_summary,
+                    selected_models['agent_zero'],
+                    agent_zero_api_key
                 )
             assistant_response = conversation_manager.conversation(user_input, agent_zero, report_summary=report_summary_text)
             return assistant_response
@@ -188,3 +150,4 @@ if user_input:
 
     # Process the user input
     process_user_input(user_input)
+
