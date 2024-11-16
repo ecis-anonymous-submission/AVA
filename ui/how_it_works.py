@@ -27,6 +27,5 @@ def display_how_it_works():
 
             Please note, you will need to explicitly ask for investment advice to trigger a recommendation.
 
-            Explore the [AVA GitHub repository](https://github.com/donkruger/ava) for deeper insights into the codebase.
             """
         )
