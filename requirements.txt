@@ -4,3 +4,4 @@ llmware
 yfinance
 openai
 anthropic
+streamlit-lottie
